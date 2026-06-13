@@ -203,3 +203,22 @@ body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; min-height: 100
 .vscroll-wrap td.row-num { color:#a0aec0; font-size:.78rem; }
 #c-results { display:none; }
 .empty-msg { text-align:center; color:#a0aec0; padding:38px; font-size:.88rem; }
+
+/* ── PDF converter ────────────────────────────────────────────────────────── */
+.drop-zone.pdf-zone:hover, .drop-zone.pdf-zone.drag-over { border-color: #dd6b20; background: #fffaf0; }
+.drop-zone .browse-p { color: #dd6b20; font-weight: 600; }
+.opt-box.p-sel  { border-color: #dd6b20; background: #fffaf0; }
+.btn-pdf {
+  width:100%; background:linear-gradient(135deg,#ed8936,#dd6b20);
+  color:white; border:none; border-radius:10px; padding:13px;
+  font-size:1rem; font-weight:600; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  transition:opacity .2s, transform .1s;
+}
+.btn-pdf:hover    { opacity:.92; transform:translateY(-1px); }
+.btn-pdf:disabled { opacity:.5; cursor:not-allowed; transform:none; }
+.prog-fill.p-fill { background: #ed8936; }
+.prog-msg { font-size:.8rem; color:#718096; margin-top:5px; min-height:1.1em; }
+.p-status { margin-top:16px; padding:11px 15px; border-radius:8px; font-size:.9rem; display:none; }
+.p-status.success { background:#f0fff4; color:#276749; border:1px solid #9ae6b4; }
+.p-status.error   { background:#fff5f5; color:#9b2c2c; border:1px solid #feb2b2; }
