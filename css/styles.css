@@ -1,0 +1,205 @@
+/* ── Reset & base ──────────────────────────────────────────────────── */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; min-height: 100vh; }
+
+/* ── App nav bar ───────────────────────────────────────────────────── */
+.app-nav {
+  background: #1a202c;
+  display: flex; align-items: center; gap: 0;
+  padding: 0 32px; height: 56px; position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,.3);
+}
+.app-logo { color: white; font-size: 1.05rem; font-weight: 700; margin-right: 32px; white-space: nowrap; }
+.app-tab-bar { display: flex; gap: 0; }
+.app-tab {
+  color: #a0aec0; background: none; border: none;
+  padding: 0 22px; height: 56px; font-size: 0.93rem; font-weight: 500;
+  cursor: pointer; border-bottom: 3px solid transparent;
+  transition: color .2s, border-color .2s;
+}
+.app-tab:hover  { color: #e2e8f0; }
+.app-tab.active { color: white; border-bottom-color: #4299e1; }
+
+/* ── App sections ──────────────────────────────────────────────────── */
+.app-section { display: none; padding: 36px 20px; }
+.app-section.active { display: block; }
+
+/* ── Shared card ───────────────────────────────────────────────────── */
+.card {
+  background: white; border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0,0,0,.10);
+  padding: 40px; width: 100%; margin: 0 auto;
+}
+.card-title { font-size: 1.6rem; color: #1a202c; margin-bottom: 6px; }
+.card-sub   { color: #718096; font-size: 0.93rem; margin-bottom: 28px; }
+
+/* ── Drop zone ─────────────────────────────────────────────────────── */
+.drop-zone {
+  border: 2px dashed #a0aec0; border-radius: 12px;
+  padding: 36px 20px; text-align: center; cursor: pointer;
+  background: #f7fafc; margin-bottom: 22px;
+  transition: border-color .2s, background .2s;
+}
+.drop-zone.merge-zone:hover,  .drop-zone.merge-zone.drag-over  { border-color: #4299e1; background: #ebf8ff; }
+.drop-zone.compare-zone:hover,.drop-zone.compare-zone.drag-over { border-color: #805ad5; background: #faf5ff; }
+.drop-zone p { color: #4a5568; font-size: 0.93rem; }
+.drop-zone .browse-m { color: #4299e1; font-weight: 600; }
+.drop-zone .browse-c { color: #805ad5; font-weight: 600; }
+.drop-zone small { color: #a0aec0; font-size: .8rem; margin-top: 4px; display: block; }
+
+/* ── File items / tags ─────────────────────────────────────────────── */
+.file-list { margin-bottom: 22px; }
+.file-list h3 { font-size: 0.85rem; color: #718096; text-transform: uppercase; letter-spacing:.05em; margin-bottom:8px; }
+.file-item {
+  display: flex; align-items: center; justify-content: space-between;
+  background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 8px;
+  padding: 9px 13px; margin-bottom: 7px; font-size: .9rem; color: #2d3748;
+}
+.file-item .fi-name { display:flex; align-items:center; gap:7px; }
+.file-item .fi-size { color: #a0aec0; font-size: .8rem; }
+.file-item .fi-rm   { background:none; border:none; color:#fc8181; cursor:pointer; font-size:1rem; padding:2px 6px; border-radius:4px; }
+.file-item .fi-rm:hover { background:#fff5f5; }
+
+.file-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.file-tag {
+  display:flex; align-items:center; gap:5px;
+  background: #f3e8ff; color: #553c9a; border: 1px solid #d6bcfa;
+  border-radius: 99px; padding: 4px 12px; font-size: .83rem; font-weight: 500;
+}
+.file-tag button { background:none; border:none; color:#805ad5; cursor:pointer; font-size:.95rem; line-height:1; }
+
+/* ── Option boxes ──────────────────────────────────────────────────── */
+.opt-row { display:flex; gap:14px; flex-wrap:wrap; margin-bottom:22px; }
+.opt-box {
+  flex:1; min-width:170px; border:2px solid #e2e8f0; border-radius:10px;
+  padding:13px 16px; cursor:pointer; transition:border-color .2s, background .2s;
+}
+.opt-box.m-sel { border-color:#4299e1; background:#ebf8ff; }
+.opt-box.c-sel { border-color:#805ad5; background:#faf5ff; }
+.opt-box h4 { font-size:.9rem; color:#2d3748; margin-bottom:3px; }
+.opt-box p  { font-size:.78rem; color:#718096; }
+
+/* ── Format picker (merger) ─────────────────────────────────────────── */
+.sec-label { font-size:.86rem; font-weight:600; color:#4a5568; margin-bottom:9px; }
+.fmt-row   { display:flex; gap:11px; margin-bottom:22px; flex-wrap:wrap; }
+.fmt-box   {
+  flex:1; min-width:90px; border:2px solid #e2e8f0; border-radius:10px;
+  padding:11px 8px; cursor:pointer; text-align:center;
+  transition:border-color .18s, background .18s;
+  display:flex; flex-direction:column; align-items:center; gap:3px;
+}
+.fmt-box:hover { border-color:#a0aec0; background:#f7fafc; }
+.fmt-box.m-sel { border-color:#4299e1; background:#ebf8ff; }
+.fmt-icon { font-size:1.3rem; }
+.fmt-name { font-size:.93rem; font-weight:700; color:#2d3748; }
+.fmt-desc { font-size:.73rem; color:#718096; }
+
+/* ── Input group ────────────────────────────────────────────────────── */
+.inp-group { margin-bottom:22px; }
+.inp-group label { display:block; font-size:.85rem; font-weight:600; color:#4a5568; margin-bottom:5px; }
+.inp-group input {
+  width:100%; border:1.5px solid #cbd5e0; border-radius:8px;
+  padding:9px 13px; font-size:.91rem; color:#2d3748; outline:none;
+  transition:border-color .2s;
+}
+.inp-group input:focus { border-color:#4299e1; }
+
+/* ── Buttons ────────────────────────────────────────────────────────── */
+.btn-merge {
+  width:100%; background:linear-gradient(135deg,#4299e1,#3182ce);
+  color:white; border:none; border-radius:10px; padding:13px;
+  font-size:1rem; font-weight:600; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  transition:opacity .2s, transform .1s;
+}
+.btn-merge:hover   { opacity:.92; transform:translateY(-1px); }
+.btn-merge:disabled{ opacity:.5; cursor:not-allowed; transform:none; }
+
+.btn-compare {
+  background:linear-gradient(135deg,#805ad5,#6b46c1);
+  color:white; border:none; border-radius:10px;
+  padding:12px 26px; font-size:.97rem; font-weight:600;
+  cursor:pointer; display:inline-flex; align-items:center; gap:8px;
+  margin-bottom:28px; transition:opacity .2s;
+}
+.btn-compare:hover    { opacity:.9; }
+.btn-compare:disabled { opacity:.5; cursor:not-allowed; }
+
+.btn-dl {
+  display:inline-flex; align-items:center; gap:6px;
+  background:linear-gradient(135deg,#38a169,#276749);
+  color:white; border:none; border-radius:8px;
+  padding:8px 16px; font-size:.86rem; font-weight:600;
+  cursor:pointer; transition:opacity .2s;
+}
+.btn-dl:hover    { opacity:.88; }
+.btn-dl:disabled { opacity:.5; cursor:not-allowed; }
+
+/* ── Progress + status (merger) ─────────────────────────────────────── */
+.prog-wrap { margin-top:13px; display:none; }
+.prog-bar  { height:6px; background:#bee3f8; border-radius:99px; overflow:hidden; }
+.prog-fill { height:100%; background:#4299e1; border-radius:99px; width:0%; transition:width .3s; }
+.m-status  { margin-top:16px; padding:11px 15px; border-radius:8px; font-size:.9rem; display:none; }
+.m-status.success { background:#f0fff4; color:#276749; border:1px solid #9ae6b4; }
+.m-status.error   { background:#fff5f5; color:#9b2c2c; border:1px solid #feb2b2; }
+
+/* ── Summary cards ───────────────────────────────────────────────────── */
+.sum-cards { display:flex; gap:13px; flex-wrap:wrap; margin-bottom:26px; }
+.sumcard   { flex:1; min-width:120px; border-radius:10px; padding:15px 18px; text-align:center; }
+.sumcard.info      { background:#ebf8ff; border:1.5px solid #90cdf4; }
+.sumcard.identical { background:#f0fff4; border:1.5px solid #9ae6b4; }
+.sumcard.different { background:#fff5f5; border:1.5px solid #feb2b2; }
+.sumcard .num { font-size:1.9rem; font-weight:700; }
+.sumcard.info      .num { color:#2b6cb0; }
+.sumcard.identical .num { color:#276749; }
+.sumcard.different .num { color:#9b2c2c; }
+.sumcard .lbl { font-size:.78rem; color:#718096; margin-top:3px; }
+
+/* ── Overall badge ────────────────────────────────────────────────────── */
+.overall-badge {
+  display:inline-flex; align-items:center; gap:8px;
+  border-radius:10px; padding:9px 18px; font-size:.93rem;
+  font-weight:600; margin-bottom:22px;
+}
+.overall-badge.match    { background:#f0fff4; color:#276749; border:1.5px solid #9ae6b4; }
+.overall-badge.mismatch { background:#fff5f5; color:#9b2c2c; border:1.5px solid #feb2b2; }
+
+/* ── Compare pair tabs ────────────────────────────────────────────────── */
+.ctabs     { display:flex; border-bottom:2px solid #e2e8f0; margin-bottom:22px; }
+.ctab      { padding:9px 20px; font-size:.88rem; font-weight:500; color:#718096; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-2px; transition:color .2s, border-color .2s; }
+.ctab.active { color:#805ad5; border-bottom-color:#805ad5; }
+.ctab-panel { display:none; }
+.ctab-panel.active { display:block; }
+
+/* ── Legend ───────────────────────────────────────────────────────────── */
+.legend { display:flex; gap:16px; flex-wrap:wrap; font-size:.8rem; color:#718096; margin-bottom:14px; }
+.legend span { display:flex; align-items:center; gap:4px; }
+.dot { width:11px; height:11px; border-radius:3px; display:inline-block; }
+.dot.same      { background:white; border:1px solid #e2e8f0; }
+.dot.diff-row  { background:#fff5f5; border:1px solid #feb2b2; }
+.dot.diff-cell { background:#fed7d7; border:1px solid #fc8181; }
+
+/* ── Virtual scroll table ─────────────────────────────────────────────── */
+.vscroll-wrap {
+  height:540px; overflow-y:auto; overflow-x:auto;
+  border-radius:8px; border:1px solid #e2e8f0;
+}
+.vscroll-wrap table { width:100%; border-collapse:collapse; font-size:.84rem; }
+.vscroll-wrap thead th {
+  position:sticky; top:0; z-index:2; background:#f7fafc;
+  padding:9px 11px; text-align:left; color:#4a5568; font-weight:600;
+  border-bottom:1.5px solid #e2e8f0; white-space:nowrap;
+}
+.vscroll-wrap thead th.col-a { background:#ebf8ff; color:#2b6cb0; }
+.vscroll-wrap thead th.col-b { background:#faf5ff; color:#553c9a; }
+.vscroll-wrap td {
+  padding:0 11px; color:#2d3748; border-bottom:1px solid #edf2f7;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:230px;
+}
+.vscroll-wrap tr.row-diff td { background:#fff5f5; }
+.vscroll-wrap td.cell-diff   { background:#fed7d7 !important; font-weight:600; }
+.vscroll-wrap td.val-a { background:#ebf8ff18; }
+.vscroll-wrap td.val-b { background:#faf5ff18; }
+.vscroll-wrap td.row-num { color:#a0aec0; font-size:.78rem; }
+#c-results { display:none; }
+.empty-msg { text-align:center; color:#a0aec0; padding:38px; font-size:.88rem; }

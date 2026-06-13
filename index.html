@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Excel Tools — Merge & Compare</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+  <link rel="stylesheet" href="css/styles.css"/>
+</head>
+<body>
+
+<!-- ── App nav ──────────────────────────────────────────────────────────── -->
+<nav class="app-nav">
+  <span class="app-logo">📊 Excel Tools</span>
+  <div class="app-tab-bar">
+    <button class="app-tab active" onclick="switchAppTab('merge')">📊 Merge Files</button>
+    <button class="app-tab"        onclick="switchAppTab('compare')">🔍 Compare Files</button>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!--  MERGER SECTION                                                        -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div id="mergeSection" class="app-section active">
+  <div class="card" style="max-width:780px">
+    <div class="card-title">📊 Excel File Merger</div>
+    <p class="card-sub">Select multiple Excel / CSV files and merge them into one file.</p>
+
+    <div class="drop-zone merge-zone" id="m-dropZone">
+      <svg width="38" height="38" fill="none" viewBox="0 0 24 24" stroke="#a0aec0" stroke-width="1.5" style="margin-bottom:8px">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 16v-8m0 0l-3 3m3-3l3 3M6 20h12a2 2 0 002-2V8l-6-6H6a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+      </svg>
+      <p><span class="browse-m">Click to browse</span> or drag &amp; drop files here</p>
+      <small>Supports .xlsx, .xls, .csv</small>
+      <input type="file" id="m-fileInput" multiple accept=".xlsx,.xls,.csv" style="display:none"/>
+    </div>
+
+    <div class="file-list" id="m-fileList" style="display:none">
+      <h3>Selected Files (<span id="m-fileCount">0</span>)</h3>
+      <div id="m-fileItems"></div>
+    </div>
+
+    <div class="sec-label">Output Format</div>
+    <div class="fmt-row">
+      <div class="fmt-box m-sel" id="m-fmtXlsx" onclick="mSelectFmt('xlsx')">
+        <span class="fmt-icon">📗</span><span class="fmt-name">.xlsx</span><span class="fmt-desc">Excel Workbook</span>
+      </div>
+      <div class="fmt-box" id="m-fmtXls" onclick="mSelectFmt('xls')">
+        <span class="fmt-icon">📘</span><span class="fmt-name">.xls</span><span class="fmt-desc">Excel 97-2003</span>
+      </div>
+      <div class="fmt-box" id="m-fmtCsv" onclick="mSelectFmt('csv')">
+        <span class="fmt-icon">📄</span><span class="fmt-name">.csv</span><span class="fmt-desc">Comma Separated</span>
+      </div>
+    </div>
+
+    <div class="opt-row">
+      <div class="opt-box m-sel" id="m-opt1" onclick="mSelectOption('combine')">
+        <h4>📋 Combine into One Sheet</h4>
+        <p>Stack all rows from every file into a single sheet</p>
+      </div>
+      <div class="opt-box" id="m-opt2" onclick="mSelectOption('sheets')">
+        <h4>📑 Keep Separate Sheets</h4>
+        <p>Each file becomes its own sheet in the output</p>
+      </div>
+    </div>
+
+    <div class="inp-group">
+      <label for="m-outputName">Output File Name</label>
+      <input type="text" id="m-outputName" value="merged_output" placeholder="merged_output"/>
+    </div>
+
+    <button class="btn-merge" id="m-mergeBtn" onclick="mMergeFiles()" disabled>
+      <svg width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+      </svg>
+      Merge &amp; Download
+    </button>
+
+    <div class="prog-wrap" id="m-progWrap">
+      <div class="prog-bar"><div class="prog-fill" id="m-progFill"></div></div>
+    </div>
+    <div class="m-status" id="m-status"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!--  COMPARATOR SECTION                                                    -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div id="compareSection" class="app-section">
+  <div class="card" style="max-width:1120px">
+    <div class="card-title">🔍 Excel File Comparator</div>
+    <p class="card-sub">Select two or more Excel / CSV files to compare data and highlight differences.</p>
+
+    <div class="drop-zone compare-zone" id="c-dropZone">
+      <svg width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="#a0aec0" stroke-width="1.5" style="margin-bottom:8px">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+      </svg>
+      <p><span class="browse-c">Click to browse</span> or drag &amp; drop files here</p>
+      <small>Supports .xlsx, .xls, .csv — select 2+ files</small>
+      <input type="file" id="c-fileInput" multiple accept=".xlsx,.xls,.csv" style="display:none"/>
+    </div>
+
+    <div class="file-tags" id="c-fileTags"></div>
+
+    <div class="opt-row">
+      <div class="opt-box c-sel" id="c-modeRow" onclick="cSelectMode('row')">
+        <h4>Row-by-Row</h4><p>Compare matching row positions</p>
+      </div>
+      <div class="opt-box" id="c-modeKey" onclick="cSelectMode('key')">
+        <h4>By Key Column</h4><p>Match rows by a shared key</p>
+      </div>
+    </div>
+
+    <div id="c-keyWrap" style="display:none;margin-bottom:20px;">
+      <label style="font-size:.85rem;font-weight:600;color:#4a5568;display:block;margin-bottom:5px;">Key Column Name (header)</label>
+      <input id="c-keyCol" type="text" placeholder="e.g. ID, OrderNo, Employee"
+        style="border:1.5px solid #cbd5e0;border-radius:8px;padding:8px 12px;font-size:.88rem;width:100%;max-width:360px;outline:none;"/>
+    </div>
+
+    <button class="btn-compare" id="c-compareBtn" onclick="cCompareFiles()" disabled>🔍 Compare Files</button>
+
+    <div id="c-results">
+      <div id="c-overallBadge" class="overall-badge"></div>
+      <div class="sum-cards" id="c-summaryCards"></div>
+      <div class="ctabs" id="c-tabsBar"></div>
+      <div id="c-tabPanels"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!--  SCRIPTS (order matters: utils first, then merger, then comparator)    -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<script src="js/utils.js"></script>
+<script src="js/merger.js"></script>
+<script src="js/comparator.js"></script>
+
+</body>
+</html>
