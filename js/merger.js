@@ -211,6 +211,8 @@
               const hdrs  = mGetHeaders(ws, range);
               const startR = (parentHeaders && JSON.stringify(hdrs) === JSON.stringify(parentHeaders))
                 ? range.s.r + 1 : range.s.r;
+              // Blank separator row between sheets (skip before very first sheet)
+              if (parentHeaders) csvRows.push([]);
               for (let r = startR; r <= range.e.r; r++) {
                 const row = [];
                 for (let c = range.s.c; c <= range.e.c; c++) {
@@ -242,6 +244,7 @@
           for (let si = 1; si < firstWb.SheetNames.length; si++) {
             mSetProgress(15 + (si / firstWb.SheetNames.length) * 20);
             const ws = firstWb.Sheets[firstWb.SheetNames[si]];
+            currentLastRow++; // blank separator row
             ({ currentLastRow, maxCol } = appendSheetRows(ws, parentWs, parentHdrs, currentLastRow, maxCol, parentRange.s.c));
           }
 
@@ -251,11 +254,21 @@
             const wb = await mReadFile(mFiles[fi]);
             for (const sheetName of wb.SheetNames) {
               const ws = wb.Sheets[sheetName];
+              currentLastRow++; // blank separator row
               ({ currentLastRow, maxCol } = appendSheetRows(ws, parentWs, parentHdrs, currentLastRow, maxCol, parentRange.s.c));
             }
           }
 
           parentWs['!ref'] = XLSX.utils.encode_range({ s: parentRange.s, e: { r: currentLastRow, c: maxCol } });
+
+          // Remove all sheets except the first — data is now all in parentWs
+          const keepName = firstWb.SheetNames[0];
+          firstWb.SheetNames.slice(1).forEach(n => { delete firstWb.Sheets[n]; });
+          firstWb.SheetNames.splice(1);
+          // Also remove extra sheets from any other loaded workbooks (they were already copied)
+          // The final workbook only has one sheet now
+          firstWb.Sheets[keepName] = parentWs;
+
           mSetProgress(90);
           if (fmt === 'xls') { XLSX.writeFile(firstWb, baseName + '.xls', { bookType: 'biff8' }); }
           else               { XLSX.writeFile(firstWb, baseName + '.xlsx'); }
