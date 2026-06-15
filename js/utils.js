@@ -1,13 +1,9 @@
 // ── App-level tab switching ────────────────────────────────────────────────
 function switchAppTab(tab) {
   document.querySelectorAll('.app-tab').forEach((t, i) =>
-    t.classList.toggle('active',
-      (i === 0 && tab === 'merge') ||
-      (i === 1 && tab === 'compare') ||
-      (i === 2 && tab === 'pdf')));
+    t.classList.toggle('active', (i === 0 && tab === 'merge') || (i === 1 && tab === 'compare')));
   document.getElementById('mergeSection').classList.toggle('active',   tab === 'merge');
   document.getElementById('compareSection').classList.toggle('active', tab === 'compare');
-  document.getElementById('pdfSection').classList.toggle('active',     tab === 'pdf');
 }
 
 // ── Shared utilities ───────────────────────────────────────────────────────

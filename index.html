@@ -6,7 +6,6 @@
   <title>Excel Tools — Merge & Compare</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <link rel="stylesheet" href="css/styles.css"/>
 </head>
 <body>
@@ -17,7 +16,6 @@
   <div class="app-tab-bar">
     <button class="app-tab active" onclick="switchAppTab('merge')">📊 Merge Files</button>
     <button class="app-tab"        onclick="switchAppTab('compare')">🔍 Compare Files</button>
-    <button class="app-tab"        onclick="switchAppTab('pdf')">📑 PDF to Excel</button>
   </div>
 </nav>
 
@@ -59,11 +57,15 @@
     <div class="opt-row">
       <div class="opt-box m-sel" id="m-opt1" onclick="mSelectOption('combine')">
         <h4>📋 Combine into One Sheet</h4>
-        <p>Stack all rows from every file into a single sheet</p>
+        <p>Stack all rows from every file's first sheet</p>
       </div>
       <div class="opt-box" id="m-opt2" onclick="mSelectOption('sheets')">
         <h4>📑 Keep Separate Sheets</h4>
         <p>Each file becomes its own sheet in the output</p>
+      </div>
+      <div class="opt-box" id="m-opt3" onclick="mSelectOption('flatten')">
+        <h4>📄 Flatten All Sheets</h4>
+        <p>All sheets from all files stacked into one single sheet</p>
       </div>
     </div>
 
@@ -132,66 +134,11 @@
 </div>
 
 <!-- ══════════════════════════════════════════════════════════════════════ -->
-<!--  PDF TO EXCEL SECTION                                                  -->
-<!-- ══════════════════════════════════════════════════════════════════════ -->
-<div id="pdfSection" class="app-section">
-  <div class="card" style="max-width:780px">
-    <div class="card-title">📑 PDF to Excel Converter</div>
-    <p class="card-sub">Upload PDF files and extract their content into an Excel spreadsheet.</p>
-
-    <div class="drop-zone pdf-zone" id="p-dropZone">
-      <svg width="38" height="38" fill="none" viewBox="0 0 24 24" stroke="#a0aec0" stroke-width="1.5" style="margin-bottom:8px">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-      </svg>
-      <p><span class="browse-p">Click to browse</span> or drag &amp; drop PDF files here</p>
-      <small>Supports .pdf files</small>
-      <input type="file" id="p-fileInput" multiple accept=".pdf" style="display:none"/>
-    </div>
-
-    <div class="file-list" id="p-fileList" style="display:none">
-      <h3>Selected Files (<span id="p-fileCount">0</span>)</h3>
-      <div id="p-fileItems"></div>
-    </div>
-
-    <div class="sec-label">Page Layout in Excel</div>
-    <div class="opt-row">
-      <div class="opt-box p-sel" id="p-modeCombined" onclick="pSelectSheetMode('combined')">
-        <h4>📋 All Pages in One Sheet</h4>
-        <p>Stack every page sequentially in a single sheet</p>
-      </div>
-      <div class="opt-box" id="p-modeSheets" onclick="pSelectSheetMode('sheets')">
-        <h4>📑 One Sheet per Page</h4>
-        <p>Each PDF page gets its own sheet tab</p>
-      </div>
-    </div>
-
-    <div class="inp-group">
-      <label for="p-outputName">Output File Name</label>
-      <input type="text" id="p-outputName" value="pdf_to_excel" placeholder="pdf_to_excel"/>
-    </div>
-
-    <button class="btn-pdf" id="p-convertBtn" onclick="pConvertFiles()" disabled>
-      <svg width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-      </svg>
-      Convert to Excel
-    </button>
-
-    <div class="prog-wrap" id="p-progWrap">
-      <div class="prog-bar"><div class="prog-fill p-fill" id="p-progFill"></div></div>
-      <div class="prog-msg" id="p-progMsg"></div>
-    </div>
-    <div class="p-status" id="p-status"></div>
-  </div>
-</div>
-
-<!-- ══════════════════════════════════════════════════════════════════════ -->
 <!--  SCRIPTS (order matters: utils first, then merger, then comparator)    -->
 <!-- ══════════════════════════════════════════════════════════════════════ -->
 <script src="js/utils.js"></script>
 <script src="js/merger.js"></script>
 <script src="js/comparator.js"></script>
-<script src="js/pdf-converter.js"></script>
 
 </body>
 </html>

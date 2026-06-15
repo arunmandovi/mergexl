@@ -45,6 +45,7 @@
     mMergeMode = mode;
     document.getElementById('m-opt1').classList.toggle('m-sel', mode === 'combine');
     document.getElementById('m-opt2').classList.toggle('m-sel', mode === 'sheets');
+    document.getElementById('m-opt3').classList.toggle('m-sel', mode === 'flatten');
   };
 
   window.mSelectFmt = function (fmt) {
@@ -171,6 +172,95 @@
           else               { XLSX.writeFile(parentWb, baseName + '.xlsx'); }
         }
 
+      } else if (mMergeMode === 'flatten') {
+        // ── Flatten ALL sheets from ALL files into one single sheet ──────────
+        // Helper: copy every data row of a worksheet into parentWs
+        function appendSheetRows(ws, parentWs, parentHdrs, currentLastRow, maxCol, parentStartCol) {
+          if (!ws['!ref']) return { currentLastRow, maxCol };
+          const rng     = XLSX.utils.decode_range(ws['!ref']);
+          const srcHdrs = mGetHeaders(ws, rng);
+          // Skip header row if it matches the parent headers
+          const startR  = JSON.stringify(srcHdrs) === JSON.stringify(parentHdrs) ? rng.s.r + 1 : rng.s.r;
+          for (let r = startR; r <= rng.e.r; r++) {
+            currentLastRow++;
+            for (let c = rng.s.c; c <= rng.e.c; c++) {
+              const srcAddr = XLSX.utils.encode_cell({ r, c });
+              const dstCol  = parentStartCol + (c - rng.s.c);
+              const dstAddr = XLSX.utils.encode_cell({ r: currentLastRow, c: dstCol });
+              const srcCell = ws[srcAddr];
+              if (srcCell !== undefined) {
+                parentWs[dstAddr] = Object.assign({}, srcCell);
+                if (dstCol > maxCol) maxCol = dstCol;
+              }
+            }
+          }
+          return { currentLastRow, maxCol };
+        }
+
+        if (fmt === 'csv') {
+          // CSV flatten: plain text rows
+          let csvRows      = [];
+          let parentHeaders = null;
+          for (let fi = 0; fi < mFiles.length; fi++) {
+            mSetProgress(10 + fi / mFiles.length * 78);
+            const wb = await mReadFile(mFiles[fi]);
+            for (const sheetName of wb.SheetNames) {
+              const ws = wb.Sheets[sheetName];
+              if (!ws['!ref']) continue;
+              const range = XLSX.utils.decode_range(ws['!ref']);
+              const hdrs  = mGetHeaders(ws, range);
+              const startR = (parentHeaders && JSON.stringify(hdrs) === JSON.stringify(parentHeaders))
+                ? range.s.r + 1 : range.s.r;
+              for (let r = startR; r <= range.e.r; r++) {
+                const row = [];
+                for (let c = range.s.c; c <= range.e.c; c++) {
+                  const cell = ws[XLSX.utils.encode_cell({ r, c })];
+                  row.push(cell ? String(cell.v ?? '') : '');
+                }
+                csvRows.push(row);
+              }
+              if (!parentHeaders) parentHeaders = hdrs;
+            }
+          }
+          const csv = csvRows.map(row => row.map(v => {
+            const s = String(v);
+            return (s.includes(',') || s.includes('"') || s.includes('\n')) ? '"' + s.replace(/"/g, '""') + '"' : s;
+          }).join(',')).join('\r\n');
+          mDownloadBlob(csv, baseName + '.csv', 'text/csv');
+
+        } else {
+          // XLSX / XLS flatten: cell-object copy to preserve all formatting
+          const firstWb     = await mReadFile(mFiles[0]);
+          mSetProgress(15);
+          const parentWs    = firstWb.Sheets[firstWb.SheetNames[0]];
+          const parentRange = XLSX.utils.decode_range(parentWs['!ref'] || 'A1');
+          const parentHdrs  = mGetHeaders(parentWs, parentRange);
+          let currentLastRow = parentRange.e.r;
+          let maxCol         = parentRange.e.c;
+
+          // Remaining sheets of the first file
+          for (let si = 1; si < firstWb.SheetNames.length; si++) {
+            mSetProgress(15 + (si / firstWb.SheetNames.length) * 20);
+            const ws = firstWb.Sheets[firstWb.SheetNames[si]];
+            ({ currentLastRow, maxCol } = appendSheetRows(ws, parentWs, parentHdrs, currentLastRow, maxCol, parentRange.s.c));
+          }
+
+          // All sheets of remaining files
+          for (let fi = 1; fi < mFiles.length; fi++) {
+            mSetProgress(35 + fi / mFiles.length * 55);
+            const wb = await mReadFile(mFiles[fi]);
+            for (const sheetName of wb.SheetNames) {
+              const ws = wb.Sheets[sheetName];
+              ({ currentLastRow, maxCol } = appendSheetRows(ws, parentWs, parentHdrs, currentLastRow, maxCol, parentRange.s.c));
+            }
+          }
+
+          parentWs['!ref'] = XLSX.utils.encode_range({ s: parentRange.s, e: { r: currentLastRow, c: maxCol } });
+          mSetProgress(90);
+          if (fmt === 'xls') { XLSX.writeFile(firstWb, baseName + '.xls', { bookType: 'biff8' }); }
+          else               { XLSX.writeFile(firstWb, baseName + '.xlsx'); }
+        }
+
       } else {
         // Separate sheets
         const parentWb  = await mReadFile(mFiles[0]);
@@ -198,7 +288,8 @@
       }
 
       mSetProgress(100);
-      mShowStatus(`✅ Merged ${mFiles.length} file(s) → "${baseName}.${fmt}"`, 'success');
+      const modeLabel = mMergeMode === 'flatten' ? 'flattened' : 'merged';
+      mShowStatus(`✅ ${modeLabel.charAt(0).toUpperCase()+modeLabel.slice(1)} ${mFiles.length} file(s) → "${baseName}.${fmt}"`, 'success');
     } catch (err) {
       mShowStatus('❌ Error: ' + err.message, 'error');
     }
